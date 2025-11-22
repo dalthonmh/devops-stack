@@ -1,0 +1,70 @@
+services:
+  # Base de datos PostgreSQL para Artifactory
+  postgres:
+    image: postgres:13
+    container_name: jfrog_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - /srv/jfrog/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # JFrog Artifactory OSS (Repositorio de artefactos)
+  artifactory:
+    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.117.10
+    container_name: jfrog_artifactory
+    restart: unless-stopped
+    ports:
+      - "8081:8081" # Backward compatibility port
+      - "8082:8082" # Interfaz Web y API
+    volumes:
+      - /srv/jfrog/artifactory/data:/var/opt/jfrog/artifactory
+      - /srv/jfrog/artifactory/logs:/var/opt/jfrog/artifactory/logs
+    environment:
+      ENABLE_MIGRATION: "y"
+      JF_SHARED_DATABASE_TYPE: "postgresql"
+      JF_SHARED_DATABASE_USERNAME: ${POSTGRES_USER}
+      JF_SHARED_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      JF_SHARED_DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      JF_SHARED_DATABASE_DRIVER: org.postgresql.Driver
+      JF_ARTIFACTORY_ADMIN_USERNAME: ${ARTIFACTORY_ADMIN_USER}
+      JF_ARTIFACTORY_ADMIN_PASSWORD: ${ARTIFACTORY_ADMIN_PASS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8082/artifactory/api/system/ping",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  # JFrog CLI
+  jfrog-cli:
+    image: releases-docker.jfrog.io/jfrog/jfrog-cli-v2:2.78.2
+    container_name: jfrog_cli
+    restart: unless-stopped
+    volumes:
+      - /srv/jfrog/cli:/root/.jfrog
+      - .:/workspace
+    working_dir: /workspace
+    command: tail -f /dev/null
+    depends_on:
+      - artifactory

@@ -1,0 +1,42 @@
+# Note: change the business name: dalthonmh
+services:
+  # Docker Registry Privado
+  docker-registry:
+    image: registry:2
+    container_name: docker_registry
+    restart: unless-stopped
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    ports:
+      - "5000:5000"
+    volumes:
+      - /srv/docker-registry/data:/var/lib/registry
+      - /srv/docker-registry/config:/auth
+    networks:
+      - docker-net
+
+  # UI del Docker Registry
+  docker-registry-ui:
+    image: joxit/docker-registry-ui:latest
+    container_name: docker_registry_ui
+    restart: unless-stopped
+    environment:
+      SINGLE_REGISTRY: "true"
+      REGISTRY_TITLE: "Docker Registry dalthonmh"
+      DELETE_IMAGES: "true"
+      REGISTRY_URL: https://docker.dalthonmh.com
+      NGINX_PROXY_PASS_URL: https://docker.dalthonmh.com
+      REGISTRY_SECURED: "true"
+    ports:
+      - "8083:80"
+    depends_on:
+      - docker-registry
+    networks:
+      - docker-net
+
+networks:
+  docker-net:
+    driver: bridge
