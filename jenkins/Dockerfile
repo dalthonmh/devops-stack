@@ -2,7 +2,7 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Instala Docker CLI, sshpass, openssh-client y zip
+# Install Docker CLI, sshpass, openssh-client, and zip
 RUN apt-get update && \
     apt-get install -y \
         apt-transport-https \
@@ -21,5 +21,5 @@ RUN apt-get update && \
     apt-get install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
-# Vuelve al usuario jenkins
+# Return to jenkins user
 USER jenkins

@@ -4,7 +4,6 @@ services:
     build: .
     ports:
       - "8099:8080"
-      - "50000:50000"
     privileged: true
     user: root
     volumes:
