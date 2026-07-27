@@ -9,9 +9,6 @@ services:
       REGISTRY_AUTH: htpasswd
       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
-      REGISTRY_STORAGE_MAINTENANCE_UPLOADPURGING_ENABLED: "true"
-      REGISTRY_STORAGE_MAINTENANCE_UPLOADPURGING_AGE: "168h"
-      REGISTRY_STORAGE_MAINTENANCE_UPLOADPURGING_INTERVAL: "24h"
       REGISTRY_STORAGE_DELETE_ENABLED: "true"
     ports:
       - "5000:5000"
@@ -30,8 +27,8 @@ services:
       SINGLE_REGISTRY: "true"
       REGISTRY_TITLE: "Docker Registry"
       DELETE_IMAGES: "true"
-      REGISTRY_URL: https://docker.dalthonmh.com
-      NGINX_PROXY_PASS_URL: https://docker.dalthonmh.com
+      REGISTRY_URL: https://registry.dalthonmh.com
+      NGINX_PROXY_PASS_URL: https://registry.dalthonmh.com
       REGISTRY_SECURED: "true"
     ports:
       - "8083:80"
