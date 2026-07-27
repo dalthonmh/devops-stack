@@ -1,4 +1,3 @@
-# Note: change the business name: dalthonmh
 services:
   # Docker Registry Privado
   docker-registry:
@@ -29,7 +28,7 @@ services:
     restart: unless-stopped
     environment:
       SINGLE_REGISTRY: "true"
-      REGISTRY_TITLE: "Docker Registry dalthonmh"
+      REGISTRY_TITLE: "Docker Registry"
       DELETE_IMAGES: "true"
       REGISTRY_URL: https://docker.dalthonmh.com
       NGINX_PROXY_PASS_URL: https://docker.dalthonmh.com
